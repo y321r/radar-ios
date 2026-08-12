@@ -1,0 +1,113 @@
+{
+  "version": 1,
+  "_comment": "Source registry. Verified 2026-08-02 — see FEEDS_REPORT.md. Loaded at runtime by SourceRegistry; a remote override may replace this file wholesale later. Never hardcode a feed URL in Kotlin.",
+  "_priority": "Tie-break only: when two outlets publish the same story at the identical timestamp, the LOWER priority wins the dedupe. Not a display order.",
+  "sources": [
+    {
+      "id": "aljazeera_ar",
+      "color": "#FF8A00",
+      "name": "الجزيرة",
+      "priority": 1,
+      "adapter": "rss",
+      "url": "https://www.aljazeera.net/aljazeerarss/a7c186be-1baa-4bd4-9d80-a84db769f779/73d0e1b4-532f-45ef-b135-bfdff8b8cab9",
+      "domain": "aljazeera.net",
+      "logo": "aljazeera.png",
+      "enabled": true,
+      "notes": "No per-item images ever. Channel-level <image> is the site logo — must not be adopted. Has <category>. Feed lags its own sitemap by ~3.5h; the 6h freshness band (D14) is what lets it contribute — it now supplies 3 of 23 accepted items. See _aljazeera_googlenews_alternative below before switching adapters.",
+      "_alternativeUrls": {
+        "aliases": "https://www.aljazeera.net/rss and /feed return this identical feed",
+        "dead": "https://www.aljazeera.net/xml/rss/all.xml is 404"
+      }
+    },
+
+    {
+      "_comment": "READY-TO-FLIP ALTERNATIVE for aljazeera_ar, kept disabled. To switch: set this entry's enabled=true and the rss entry above to false. MEASURED AND NOT RECOMMENDED — the Google News site: query returns navigational pages rather than articles ('البث الحي المباشر', 'إذاعة الجزيرة: استمع الآن', the section homepage), local URL decoding fails on every item so each one costs an extra HEAD redirect (30 per sync at when:6h), and its index is still ~98 minutes behind. The RSS feed above, once the 6h band admits it, delivers real articles at no extra cost. See DECISIONS.md D15.",
+      "id": "aljazeera_ar_googlenews",
+      "color": "#FF8A00",
+      "name": "الجزيرة",
+      "priority": 1,
+      "adapter": "googlenews",
+      "url": "https://news.google.com/rss/search?q=site:aljazeera.net+when:6h&hl=ar&gl=SA&ceid=SA:ar",
+      "domain": "aljazeera.net",
+      "logo": "aljazeera.png",
+      "enabled": false
+    },
+    {
+      "id": "alarabiya_ar",
+      "color": "#00A0DF",
+      "name": "العربية",
+      "priority": 2,
+      "adapter": "rss",
+      "url": "https://www.alarabiya.net/feed/rss2/ar.xml",
+      "domain": "alarabiya.net",
+      "logo": "alarabiya.png",
+      "enabled": true,
+      "notes": "Spec URL .mrss/ar.xml returns 403 (WAF). Images only as inline <img> inside description HTML."
+    },
+    {
+      "id": "bbc_ar",
+      "color": "#BB1919",
+      "name": "بي بي سي",
+      "priority": 3,
+      "adapter": "rss",
+      "url": "https://feeds.bbci.co.uk/arabic/rss.xml",
+      "domain": "bbc.com",
+      "logo": "bbc.png",
+      "enabled": true,
+      "imageRewrite": {
+        "pattern": "/ace/ws/\\d+/",
+        "replacement": "/ace/ws/800/"
+      },
+      "notes": "One feed for all paths — /middleeast/ and /business/ are byte-identical. media:thumbnail is 240px, upgraded to 800px above."
+    },
+    {
+      "id": "france24_ar",
+      "color": "#1B4F9C",
+      "name": "فرانس 24",
+      "priority": 4,
+      "adapter": "rss",
+      "url": "https://www.france24.com/ar/middle-east/rss",
+      "domain": "france24.com",
+      "logo": "france24.png",
+      "enabled": true,
+      "notes": "Was /ar/rss, which is DEAD — it 301s to the /ar/خدمة-RSS landing page and returns HTML, so it parsed to zero items and the source contributed nothing while reporting only an 'intermittent empty 200'. That quirk was never intermittent; the catch-all feed was retired. Verified 2026-08-04: this section feed returns 30 items, 100% media:thumbnail coverage, RFC-822 GMT dates, all-https links. Sibling section feeds also live if broader coverage is ever wanted: /ar/europe/rss, /ar/france/rss, /ar/americas/rss, /ar/asia-pacific/rss, /ar/business/rss. /ar/africa/rss is 404.",
+      "_deadUrl": "https://www.france24.com/ar/rss — 301 to an HTML page, zero items"
+    },
+    {
+      "id": "dw_ar",
+      "color": "#00A5FF",
+      "name": "دويتشه فيله",
+      "priority": 5,
+      "adapter": "rss",
+      "url": "https://rss.dw.com/xml/rss-ar-all",
+      "domain": "dw.com",
+      "logo": "dw.png",
+      "enabled": true,
+      "notes": "Chose xml/ (RSS 2.0, pubDate) over spec's rdf/ (RDF, dc:date) — same content, one parser path. No images. Tail of feed is months stale; sort by parsed date, never feed order."
+    },
+    {
+      "id": "cnn_ar",
+      "color": "#CC0000",
+      "name": "CNN",
+      "priority": 6,
+      "adapter": "rss",
+      "url": "https://arabic.cnn.com/api/v1/rss/rss.xml",
+      "domain": "arabic.cnn.com",
+      "logo": "cnn.png",
+      "enabled": true,
+      "notes": "Best image metadata (media:content 1920x1080). Heavily mixed content — leans hardest on the negative-keyword filter."
+    },
+    {
+      "id": "reuters_ar",
+      "color": "#FF8000",
+      "name": "رويترز",
+      "priority": 0,
+      "adapter": "googlenews",
+      "url": "https://news.google.com/rss/search?q=site:reuters.com/arabic+when:6h&hl=ar&gl=SA&ceid=SA:ar",
+      "domain": "reuters.com",
+      "logo": "reuters.png",
+      "enabled": false,
+      "notes": "DISABLED — Reuters no longer runs an Arabic service. RSS 404, arabic.reuters.com DNS-dead, site 401, frontend JSON API 401, Google News site: query returns 0 items. A broad 'رويترز' keyword query returns other outlets citing Reuters, which would misattribute them — deliberately not used. Flip enabled=true if Reuters ever relaunches. See FEEDS_REPORT.md and DECISIONS.md D1."
+    }
+  ]
+}

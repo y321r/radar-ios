@@ -1,0 +1,28 @@
+# Gradle / Kotlin
+.gradle/
+build/
+**/build/
+captures/
+.externalNativeBuild/
+.cxx/
+local.properties
+*.hprof
+
+# Android Studio / IntelliJ
+.idea/
+*.iml
+.DS_Store
+
+# Xcode
+iosApp/iosApp.xcodeproj/xcuserdata/
+iosApp/iosApp.xcodeproj/project.xcworkspace/xcuserdata/
+**/*.xcuserstate
+DerivedData/
+build-ios/
+
+# Secrets — never commit
+keystore.properties
+*.jks
+*.keystore
+secrets.properties
+.env

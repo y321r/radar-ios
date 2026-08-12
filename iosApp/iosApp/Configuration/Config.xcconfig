@@ -1,0 +1,5 @@
+// Xcode build configuration for the Radar iOS app.
+// TEAM_ID is filled in once the Apple Developer account exists (99$/yr, later).
+TEAM_ID=
+BUNDLE_ID=com.radar.news
+APP_NAME=Radar
