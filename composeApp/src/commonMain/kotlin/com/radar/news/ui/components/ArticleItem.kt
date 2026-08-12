@@ -1,6 +1,7 @@
 package com.radar.news.ui.components
 
 import com.radar.news.ui.Strings
+import com.radar.news.ui.countFormat
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -26,12 +27,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
-import coil3.compose.SubcomposeAsyncImage
-import coil3.request.ImageRequest
-import coil3.request.crossfade
+import coil3.compose.AsyncImage
 import com.radar.news.data.model.Article
 import com.radar.news.domain.time.ArabicRelativeTime
 import com.radar.news.ui.ArticleActions
@@ -54,7 +51,6 @@ fun ArticleItem(
     now: Long,
     modifier: Modifier = Modifier,
 ) {
-    val context = LocalContext.current
     val relativeTime = remember(article.publishedAt, now) {
         ArabicRelativeTime.format(article.publishedAt, now)
     }
@@ -140,7 +136,7 @@ private fun HeaderRow(article: Article, relativeTime: String) {
                 color = RadarColors.TextSecondary,
             )
             Text(
-                text = Strings.extra_sources.format(article.extraSourceCount),
+                text = countFormat(Strings.extra_sources, article.extraSourceCount),
                 style = MetaStyle,
                 color = RadarColors.TextSecondary,
                 maxLines = 1,
@@ -151,29 +147,22 @@ private fun HeaderRow(article: Article, relativeTime: String) {
 
 @Composable
 private fun ArticleImage(url: String, contentDescription: String) {
-    SubcomposeAsyncImage(
-        model = ImageRequest.Builder(LocalContext.current)
-            .data(url)
-            .crossfade(true)
-            .build(),
+    AsyncImage(
+        model = url,
         contentDescription = contentDescription,
         contentScale = androidx.compose.ui.layout.ContentScale.Crop,
         modifier = Modifier
             .fillMaxWidth()
             .aspectRatio(16f / 9f)
             .clip(RoundedCornerShape(Dimens.ImageCorner)),
-        loading = {
-            Box(Modifier.fillMaxWidth().background(shimmerBrush()))
-        },
-        // A dead image URL collapses the slot rather than leaving a hole where a picture
-        // was promised — same rule as an item that never had one.
-        error = { Box(Modifier) },
+        // coil3 AsyncImage has no composable loading/error slots (coil2 API). A dead image
+        // URL with a null error painter collapses the slot — same rule as an item that never
+        // had one.
     )
 }
 
 @Composable
 private fun ActionRow(article: Article) {
-    val context = LocalContext.current
     val domain = remember(article.url) {
         article.sourceDomain.ifBlank { ArticleActions.displayDomain(article.url) }
     }

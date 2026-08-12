@@ -16,7 +16,7 @@ import io.ktor.client.HttpClient
 import io.ktor.client.engine.darwin.Darwin
 import io.ktor.client.plugins.HttpTimeout
 import kotlinx.coroutines.runBlocking
-import com.radar.news.generated.resources.Res
+import radar_ios.composeapp.generated.resources.Res
 
 /**
  * iOS dependency container — the counterpart of the Android `AppContainer`. Assets ship in

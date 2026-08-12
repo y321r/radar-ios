@@ -9,7 +9,7 @@ actual object ArticleActions {
     actual fun openArticle(url: String) {
         if (!url.startsWith("http://") && !url.startsWith("https://")) return
         val nsUrl = NSURL.URLWithString(url) ?: return
-        UIApplication.sharedApplication.openURL(nsUrl, options = emptyMap(), completionHandler = null)
+        UIApplication.sharedApplication.openURL(nsUrl, options = emptyMap<Any?, Any?>(), completionHandler = null)
     }
 
     actual fun shareArticle(title: String, url: String) {
@@ -22,6 +22,6 @@ actual object ArticleActions {
 
     actual fun openEmail(address: String) {
         val nsUrl = NSURL.URLWithString("mailto:$address") ?: return
-        UIApplication.sharedApplication.openURL(nsUrl, options = emptyMap(), completionHandler = null)
+        UIApplication.sharedApplication.openURL(nsUrl, options = emptyMap<Any?, Any?>(), completionHandler = null)
     }
 }

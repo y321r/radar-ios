@@ -122,10 +122,10 @@ class Deduplicator constructor() {
             merge(row = match, candidate = candidate)
             // If the row still belongs to someone else, this candidate's outlet lost the story.
             if (match.sourceId != candidate.sourceId) {
-                mergedIntoOther.merge(candidate.sourceId, 1, Int::plus)
+                mergedIntoOther[candidate.sourceId] = (mergedIntoOther[candidate.sourceId] ?: 0) + 1
             } else if (ownerBefore != candidate.sourceId) {
                 // The candidate took the row over, so the previous owner is the one that lost it.
-                mergedIntoOther.merge(ownerBefore, 1, Int::plus)
+                mergedIntoOther[ownerBefore] = (mergedIntoOther[ownerBefore] ?: 0) + 1
             }
         }
 
