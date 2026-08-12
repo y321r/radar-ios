@@ -1,9 +1,10 @@
-# Radar iOS — Codemagic workflow (Compose Multiplatform / Kotlin Multiplatform)
-# Two phases: (1) compile the Kotlin/Native framework — the first real gate for iosMain,
-#             (2) build the Xcode app shell with xcodebuild (target-based, no scheme needed).
+# Radar iOS — Codemagic workflows (Compose Multiplatform / Kotlin Multiplatform)
+# Simulator workflow: runnable NOW, no Apple account needed.
+# Device workflow: runnable NOW unsigned — proves the app builds for a real iPhone.
+# Release workflow: commented — fill TEAM_ID etc. when the Apple Developer account arrives.
 workflows:
   ios-build:
-    name: Radar iOS
+    name: Radar iOS (simulator)
     max_build_duration: 90
     instance_type: mac_mini_m2
     environment:
@@ -34,3 +35,78 @@ workflows:
         notify:
           success: true
           failure: true
+
+  ios-device:
+    name: Radar iOS (device, unsigned)
+    max_build_duration: 90
+    instance_type: mac_mini_m2
+    environment:
+      xcode: latest
+    scripts:
+      - name: Compile Kotlin/Native iOS framework (device arm64, debug)
+        script: |
+          set -e
+          ./gradlew :composeApp:linkDebugFrameworkIosArm64 --console=plain
+      - name: Build iOS app (device, unsigned)
+        script: |
+          set -e
+          cd iosApp
+          xcodebuild -project iosApp.xcodeproj \
+            -scheme iosApp \
+            -configuration Debug \
+            -sdk iphoneos \
+            -derivedDataPath ../build-ios-device \
+            ARCHS=arm64 \
+            CODE_SIGNING_ALLOWED=NO build
+    artifacts:
+      - build-ios-device/Build/Products/Debug-iphoneos/*.app
+      - composeApp/build/bin/iosArm64/debugFramework/*.framework
+    publishing:
+      email:
+        recipients:
+          - a.aldhabab@gmail.com
+        notify:
+          success: true
+          failure: true
+
+  # ios-release:  # ← enable when the Apple Developer account exists
+  #   name: Radar iOS (release / TestFlight)
+  #   max_build_duration: 90
+  #   instance_type: mac_mini_m2
+  #   environment:
+  #     xcode: latest
+  #     vars:
+  #       TEAM_ID: ""            # ← Apple Team ID (from developer account)
+  #       BUNDLE_ID: com.radar.news
+  #   scripts:
+  #     - name: Compile Kotlin/Native iOS framework (device, release)
+  #       script: |
+  #         set -e
+  #         ./gradlew :composeApp:linkReleaseFrameworkIosArm64 --console=plain
+  #     - name: Build & archive for TestFlight (signed)
+  #       script: |
+  #         set -e
+  #         cd iosApp
+  #         xcodebuild -project iosApp.xcodeproj \
+  #           -scheme iosApp \
+  #           -configuration Release \
+  #           -sdk iphoneos \
+  #           -archivePath ../build/Radar.xcarchive \
+  #           DEVELOPMENT_TEAM=$TEAM_ID \
+  #           CODE_SIGN_STYLE=Automatic archive
+  #     - name: Export IPA
+  #       script: |
+  #         xcodebuild -exportArchive \
+  #           -archivePath build/Radar.xcarchive \
+  #           -exportPath build/export \
+  #           -exportOptionsPlist iosApp/ExportOptions.plist
+  #   artifacts:
+  #     - build/export/*.ipa
+  #     - build/Radar.xcarchive
+  #   publishing:
+  #     email:
+  #       recipients:
+  #         - a.aldhabab@gmail.com
+  #       notify:
+  #         success: true
+  #         failure: true
