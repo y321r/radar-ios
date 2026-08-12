@@ -19,4 +19,9 @@ actual object ArticleActions {
     }
 
     actual fun displayDomain(url: String): String = articleHost(url)
+
+    actual fun openEmail(address: String) {
+        val nsUrl = NSURL.URLWithString("mailto:$address") ?: return
+        UIApplication.sharedApplication.openURL(nsUrl) { _ -> }
+    }
 }

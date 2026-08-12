@@ -1,8 +1,6 @@
 package com.radar.news.ui.components
 
 import com.radar.news.ui.Strings
-import android.content.Intent
-import android.net.Uri
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -26,7 +24,6 @@ import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.radar.news.ui.ArticleActions
@@ -45,7 +42,6 @@ import com.radar.news.ui.theme.RadarColors
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ContactSheet(onDismiss: () -> Unit) {
-    val context = LocalContext.current
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
     ModalBottomSheet(
@@ -103,11 +99,7 @@ fun ContactSheet(onDismiss: () -> Unit) {
             // Sends via the device's mail client directly to the developer address.
             Button(
                 onClick = {
-                    val intent = Intent(
-                        Intent.ACTION_SENDTO,
-                        Uri.parse("mailto:" + Strings.contact_email),
-                    )
-                    runCatching { context.startActivity(intent) }
+                    ArticleActions.openEmail(Strings.contact_email)
                 },
                 modifier = Modifier
                     .fillMaxWidth()

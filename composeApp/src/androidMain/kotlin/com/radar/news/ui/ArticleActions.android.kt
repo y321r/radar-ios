@@ -57,5 +57,11 @@ actual object ArticleActions {
 
     actual fun displayDomain(url: String): String = articleHost(url)
 
+    actual fun openEmail(address: String) {
+        val context = AndroidAppContext.context
+        val uri = runCatching { Uri.parse("mailto:$address") }.getOrNull() ?: return
+        runCatching { context.startActivity(Intent(Intent.ACTION_SENDTO, uri)) }
+    }
+
     private val ALLOWED_SCHEMES = setOf("http", "https")
 }

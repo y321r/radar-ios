@@ -14,6 +14,9 @@ expect object ArticleActions {
 
     /** `bbc.com` from a full article URL, for the source-link label. Pure, platform-free. */
     fun displayDomain(url: String): String
+
+    /** Opens the device mail client addressed to [address] (mailto:). */
+    fun openEmail(address: String)
 }
 
 /** Shared implementation of [displayDomain] (host extraction) — kept here so the UI never touches URLs directly. */
