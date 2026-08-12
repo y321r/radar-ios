@@ -5,7 +5,6 @@ import com.radar.news.util.RadarLog
 import com.radar.news.data.model.NewsSource
 import com.radar.news.data.model.RawArticle
 import kotlinx.coroutines.delay
-import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 
 /**
  * How one kind of source is turned into articles. One implementation per `adapter` value
@@ -129,16 +128,19 @@ internal fun FeedItem.toRawArticle(source: NewsSource): RawArticle? {
  * The string back if it is a real, bounded http(s) URL, otherwise null.
  *
  * `startsWith("http")` was a prefix test, not a scheme test: it accepted `http://` where https
- * was wanted, and accepted strings like `httpfoo/../..` that are not URLs at all. `toHttpUrlOrNull`
- * both parses and restricts the scheme to http/https.
+ * was wanted, and accepted strings like `httpfoo/../..` that are not URLs at all. A bounded
+ * scheme regex both parses and restricts the scheme to http/https.
  *
  * The original string is returned rather than the parsed form — canonicalisation is
  * [UrlCanonicalizer]'s job and happens later, and rewriting the stored URL here would change
  * what the share sheet and the source-domain label show.
  */
+private val URL_SCHEME_REGEX = Regex("^[a-zA-Z][a-zA-Z0-9+.-]*://")
+private val HTTPS_SCHEME_REGEX = Regex("^https://", RegexOption.IGNORE_CASE)
+
 private fun String.validUrl(httpsOnly: Boolean = false): String? {
     if (length > MAX_URL_CHARS) return null
-    val parsed = toHttpUrlOrNull() ?: return null
-    if (httpsOnly && parsed.scheme != "https") return null
+    if (!URL_SCHEME_REGEX.containsMatchIn(this)) return null
+    if (httpsOnly && !HTTPS_SCHEME_REGEX.containsMatchIn(this)) return null
     return this
 }
