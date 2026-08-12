@@ -116,7 +116,7 @@ object HtmlText {
         var out = NUMERIC_ENTITY.replace(text) { m ->
             val radix = if (m.groupValues[1].isEmpty()) 10 else 16
             val code = m.groupValues[2].toIntOrNull(radix)
-            if (code != null && code in 1..0x10FFFF) String(Character.toChars(code)) else ""
+            if (code != null && code in 1..0x10FFFF) codePointToString(code) else ""
         }
         out = ENTITY.replace(out) { m ->
             when (val name = m.groupValues[1]) {
@@ -167,4 +167,17 @@ object HtmlText {
         val body = if (lastSpace > max / 2) cut.take(lastSpace) else cut
         return body.trimEnd().trimEnd('،', ',', '.', '؛', ';') + "…"
     }
+}
+
+
+/** Common KMP replacement for java.lang.Character.toChars: code point -> String (BMP or surrogate pair). */
+internal fun codePointToString(cp: Int): String = when {
+    cp in 0x10000..0x10FFFF -> {
+        val v = cp - 0x10000
+        val high = (0xD800 + (v shr 10)).toChar()
+        val low = (0xDC00 + (v and 0x3FF)).toChar()
+        "$high$low"
+    }
+    cp in 1..0xFFFF -> Char(cp).toString()
+    else -> ""
 }

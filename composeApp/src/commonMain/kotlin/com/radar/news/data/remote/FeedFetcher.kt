@@ -61,7 +61,7 @@ class FeedFetcher constructor(
      *   that an empty-body retry cannot stack a second HTTP retry on top and blow the
      *   per-source time budget.
      */
-    suspend fun get(url: String, allowRetry: Boolean = true): String = withContext(Dispatchers.IO) {
+    suspend fun get(url: String, allowRetry: Boolean = true): String = withContext(Dispatchers.Default) {
         try {
             attempt(url)
         } catch (e: FeedHttpException) {

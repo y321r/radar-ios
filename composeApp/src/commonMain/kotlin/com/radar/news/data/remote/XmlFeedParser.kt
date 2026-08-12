@@ -376,7 +376,7 @@ internal class XmlScanner(private val input: String) {
                         entity.startsWith("#") -> entity.drop(1).toIntOrNull(10)
                         else -> null
                     }
-                    if (cp != null && cp > 0) sb.appendCodePoint(cp) else sb.append('&').append(entity).append(';')
+                    if (cp != null && cp > 0) sb.append(codePointToString(cp)) else sb.append('&').append(entity).append(';')
                 }
             }
             i = semi + 1

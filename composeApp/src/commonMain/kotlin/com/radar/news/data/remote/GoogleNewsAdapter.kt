@@ -69,7 +69,7 @@ class GoogleNewsAdapter constructor(
         return found.takeIf { !it.contains("news.google.com") }
     }
 
-    private suspend fun followRedirect(url: String): String? = withContext(Dispatchers.IO) {
+    private suspend fun followRedirect(url: String): String? = withContext(Dispatchers.Default) {
         runCatching {
             client.head(url).request.url.toString().takeIf { !it.contains("news.google.com") }
         }.getOrNull()
