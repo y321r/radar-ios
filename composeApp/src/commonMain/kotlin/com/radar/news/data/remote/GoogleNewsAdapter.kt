@@ -5,10 +5,11 @@ import kotlin.io.encoding.ExperimentalEncodingApi
 
 import com.radar.news.data.model.NewsSource
 import com.radar.news.data.model.RawArticle
+import io.ktor.client.HttpClient
+import io.ktor.client.request.head
+import io.ktor.client.statement.request
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import okhttp3.OkHttpClient
-import okhttp3.Request
 
 /**
  * Google News RSS used as an adapter for an outlet with no usable feed of its own
@@ -25,7 +26,7 @@ import okhttp3.Request
  */
 class GoogleNewsAdapter constructor(
     private val fetcher: FeedFetcher,
-    private val client: OkHttpClient,
+    private val client: HttpClient,
 ) : FeedAdapter {
 
     override suspend fun fetch(source: NewsSource): List<RawArticle> {
@@ -70,10 +71,7 @@ class GoogleNewsAdapter constructor(
 
     private suspend fun followRedirect(url: String): String? = withContext(Dispatchers.IO) {
         runCatching {
-            val request = Request.Builder().url(url).head().build()
-            client.newCall(request).execute().use { response ->
-                response.request.url.toString().takeIf { !it.contains("news.google.com") }
-            }
+            client.head(url).request.url.toString().takeIf { !it.contains("news.google.com") }
         }.getOrNull()
     }
 

@@ -56,10 +56,10 @@ kotlin {
             implementation(libs.kotlinx.coroutines.core)
             implementation(libs.kotlinx.serialization.json)
             implementation(libs.kotlinx.datetime)
-            implementation(libs.okhttp)
             implementation(libs.ksoup)
             implementation(libs.coil)
-            implementation(libs.coil.network.okhttp)
+            implementation(libs.coil.network.ktor3)
+            implementation(libs.ktor.client.core)
 
             // Storage (Room supports KMP since 2.7)
             implementation(libs.androidx.room.runtime)
@@ -73,9 +73,12 @@ kotlin {
             implementation(libs.androidx.activity.compose)
             implementation(libs.androidx.lifecycle.viewmodel)
             implementation(libs.androidx.browser)
+            implementation(libs.ktor.client.okhttp)
             implementation(libs.koin.android)
         }
+
         iosMain.dependencies {
+            implementation(libs.ktor.client.darwin)
         }
     }
 }

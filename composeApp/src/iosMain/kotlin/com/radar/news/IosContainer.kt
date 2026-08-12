@@ -11,10 +11,11 @@ import com.radar.news.data.repository.NewsRepository
 import com.radar.news.domain.dedupe.Deduplicator
 import com.radar.news.domain.filter.BreakingNewsClassifier
 import com.radar.news.domain.filter.KeywordStore
+import io.ktor.client.HttpClient
+import io.ktor.client.engine.darwin.Darwin
+import io.ktor.client.plugins.HttpTimeout
 import kotlinx.coroutines.runBlocking
-import okhttp3.OkHttpClient
 import org.jetbrains.compose.resources.Res
-import kotlin.time.Duration.Companion.seconds
 
 /**
  * iOS dependency container — the counterpart of the Android `AppContainer`. Assets ship in
@@ -28,9 +29,12 @@ object IosContainer {
         val sourcesJson = Res.readBytes("files/sources.json").decodeToString()
         val keywordsJson = Res.readBytes("files/keywords.json").decodeToString()
 
-        val client = OkHttpClient.Builder()
-            .callTimeout(35.seconds)
-            .build()
+        val client = HttpClient(Darwin) {
+            install(HttpTimeout) {
+                requestTimeoutMillis = 35_000
+                connectTimeoutMillis = 15_000
+            }
+        }
         val fetcher = FeedFetcher(client)
         val database = createRadarDatabase()
 

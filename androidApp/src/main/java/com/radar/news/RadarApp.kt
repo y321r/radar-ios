@@ -13,8 +13,9 @@ import com.radar.news.data.repository.NewsRepository
 import com.radar.news.domain.dedupe.Deduplicator
 import com.radar.news.domain.filter.BreakingNewsClassifier
 import com.radar.news.domain.filter.KeywordStore
-import okhttp3.OkHttpClient
-import java.util.concurrent.TimeUnit
+import io.ktor.client.HttpClient
+import io.ktor.client.engine.okhttp.OkHttp
+import io.ktor.client.plugins.HttpTimeout
 
 /**
  * Manual dependency container — the KMP shell's replacement for Hilt. Everything the feed
@@ -23,9 +24,12 @@ import java.util.concurrent.TimeUnit
  */
 class AppContainer(context: Context) {
 
-    private val client: OkHttpClient = OkHttpClient.Builder()
-        .callTimeout(35, TimeUnit.SECONDS)
-        .build()
+    private val client: HttpClient = HttpClient(OkHttp) {
+        install(HttpTimeout) {
+            requestTimeoutMillis = 35_000
+            connectTimeoutMillis = 15_000
+        }
+    }
 
     private val fetcher = FeedFetcher(client)
 

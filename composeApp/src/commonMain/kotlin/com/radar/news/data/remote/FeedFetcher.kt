@@ -2,11 +2,15 @@ package com.radar.news.data.remote
 
 import com.radar.news.util.RadarLog
 
+import io.ktor.client.HttpClient
+import io.ktor.client.request.get
+import io.ktor.client.request.headers
+import io.ktor.client.statement.bodyAsText
+import io.ktor.http.contentLength
+import io.ktor.http.isSuccess
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
-import okhttp3.OkHttpClient
-import okhttp3.Request
 
 /** A feed responded, but with something that is not a usable body. */
 class FeedHttpException(val code: Int, url: String) :
@@ -33,7 +37,8 @@ class FeedTooLargeException(val url: String, val bytes: Long) :
     Exception("feed body exceeds ${FeedFetcher.MAX_BODY_BYTES} bytes ($bytes) for $url")
 
 /**
- * Fetches a feed body over OkHttp.
+ * Fetches a feed body over Ktor (KMP HTTP client — OkHttp 5.4.0 publishes no native/iOS
+ * variants, so the Android engine is OkHttp via `ktor-client-okhttp` and iOS uses Darwin).
  *
  * Kept deliberately thin: every source is an absolute URL returning raw XML, so there is
  * nothing for a typed HTTP layer to buy us here (see DECISIONS.md D5).
@@ -49,7 +54,7 @@ class FeedTooLargeException(val url: String, val bytes: Long) :
  * block rather than a random one.
  */
 class FeedFetcher constructor(
-    private val client: OkHttpClient,
+    private val client: HttpClient,
 ) {
     /**
      * @param allowRetry set false when the caller is *already* inside a retry of its own, so
@@ -88,48 +93,21 @@ class FeedFetcher constructor(
         private const val TAG = "FeedFetcher"
     }
 
-    private fun attempt(url: String): String {
-        val request = Request.Builder()
-            .url(url)
-            .header("Accept", "application/rss+xml, application/atom+xml, application/xml, text/xml, */*")
-            .header("Accept-Language", "ar,en;q=0.8")
-            .build()
-
-        client.newCall(request).execute().use { response ->
-            if (!response.isSuccessful) throw FeedHttpException(response.code, url)
-            return response.body.readCapped(url)
+    private suspend fun attempt(url: String): String {
+        val response = client.get(url) {
+            headers {
+                append("Accept", "application/rss+xml, application/atom+xml, application/xml, text/xml, */*")
+                append("Accept-Language", "ar,en;q=0.8")
+            }
         }
+        if (!response.status.isSuccess()) throw FeedHttpException(response.status.value, url)
+        val declared = response.contentLength() ?: 0L
+        if (declared > MAX_BODY_BYTES) throw FeedTooLargeException(url, declared)
+        val body = response.bodyAsText()
+        if (body.length > MAX_BODY_BYTES) throw FeedTooLargeException(url, body.length.toLong())
+        return body
     }
 
     /** 403 is the bot-challenge; 5xx is a transient server fault. A 404 is permanent. */
     private fun Int.isWorthRetrying(): Boolean = this == 403 || this in 500..599
-
-    /**
-     * Reads at most [MAX_BODY_BYTES] and throws rather than truncating.
-     *
-     * `callTimeout` bounds how long a response may take, not how large it may be, and OkHttp
-     * asks for gzip and inflates transparently — so `body.string()` on a compressed bomb
-     * materialises the *decompressed* size as a UTF-16 String, two bytes per character.
-     *
-     * Truncating instead of throwing would be worse than either: a half-read document parses
-     * to a partial item list, which the empty-body retry then cannot distinguish from a healthy
-     * short feed. A refused body is a failure the funnel can name.
-     *
-     * `request()` fills the buffer only until the ceiling is passed, so a bomb is caught after
-     * ~8 MB of inflation rather than all of it. The declared length is checked first because
-     * an honest oversized response can be refused without reading it at all.
-     */
-    private fun okhttp3.ResponseBody.readCapped(url: String): String {
-        val declared = contentLength()
-        if (declared > MAX_BODY_BYTES) throw FeedTooLargeException(url, declared)
-
-        val body = source()
-        body.request(MAX_BODY_BYTES + 1)
-        val buffered = body.buffer
-        if (buffered.size > MAX_BODY_BYTES) throw FeedTooLargeException(url, buffered.size)
-
-        // Same charset rule as body.string(): honour Content-Type, fall back to UTF-8, which
-        // every one of the six live feeds declares.
-        return buffered.readString(contentType()?.charset(Charsets.UTF_8) ?: Charsets.UTF_8)
-    }
 }

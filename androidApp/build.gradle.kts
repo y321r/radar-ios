@@ -35,7 +35,8 @@ dependencies {
     implementation(libs.androidx.lifecycle.viewmodel)
     // The app shell builds the dependency container itself, so it needs the concrete
     // libraries the container types reference (the KMP library only exposes them as api).
-    implementation(libs.okhttp)
+    implementation(libs.ktor.client.core)
+    implementation(libs.ktor.client.okhttp)
     implementation(libs.androidx.room.runtime)
     implementation(libs.kotlinx.coroutines.core)
 }

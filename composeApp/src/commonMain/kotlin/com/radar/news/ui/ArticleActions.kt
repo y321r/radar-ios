@@ -1,7 +1,5 @@
 package com.radar.news.ui
 
-import okhttp3.HttpUrl.Companion.toHttpUrl
-
 /**
  * Opening and sharing an article. Platform-specific (Android: Custom Tabs/Intent chooser;
  * iOS: openURL/share sheet) — both fail soft rather than crashing the timeline.
@@ -20,4 +18,6 @@ expect object ArticleActions {
 
 /** Shared implementation of [displayDomain] (host extraction) — kept here so the UI never touches URLs directly. */
 internal fun articleHost(url: String): String =
-    runCatching { url.toHttpUrl().host?.removePrefix("www.").orEmpty() }.getOrDefault("")
+    runCatching { HOST_REGEX.find(url)?.groupValues?.get(1)?.removePrefix("www.") ?: "" }.getOrDefault("")
+
+private val HOST_REGEX = Regex("^[a-zA-Z][a-zA-Z0-9+.-]*://([^/:?#]+)")
