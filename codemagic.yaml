@@ -13,12 +13,12 @@ workflows:
         script: |
           set -e
           ./gradlew :composeApp:linkDebugFrameworkIosSimulatorArm64 --console=plain
-      - name: Build iOS app shell (simulator, no signing)
+      - name: Build iOS app (simulator, no signing)
         script: |
           set -e
           cd iosApp
           xcodebuild -project iosApp.xcodeproj \
-            -target iosApp \
+            -scheme iosApp \
             -configuration Debug \
             -sdk iphonesimulator \
             -derivedDataPath ../build-ios \
