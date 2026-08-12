@@ -22,6 +22,7 @@ workflows:
             -configuration Debug \
             -sdk iphonesimulator \
             -derivedDataPath ../build-ios \
+            ARCHS=arm64 \
             CODE_SIGNING_ALLOWED=NO build
     artifacts:
       - build-ios/Build/Products/Debug-iphonesimulator/*.app
