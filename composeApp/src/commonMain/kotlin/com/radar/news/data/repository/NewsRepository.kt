@@ -177,7 +177,7 @@ class NewsRepository constructor(
                 fresh30m = ages.count { it in 0..FilterConfig.FRESH_30M_MILLIS },
                 fresh2h = ages.count { it in 0..FilterConfig.FRESH_2H_MILLIS },
                 newestAgeMinutes = (ages.minOrNull() ?: 0L) / 60_000L,
-                error = source.error?.let { "${it.javaClass.simpleName}: ${it.message}" },
+                error = source.error?.let { "${it::class.simpleName}: ${it.message}" },
             )
         }
 

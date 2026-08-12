@@ -80,8 +80,8 @@ class Deduplicator constructor() {
         existing.forEach { entity ->
             val candidate = Candidate.fromEntity(entity, sources[entity.sourceId]?.priority ?: DEFAULT_PRIORITY)
             pool += candidate
-            byCanonicalUrl.putIfAbsent(candidate.canonicalUrl, candidate)
-            byTitleHash.putIfAbsent(candidate.titleHash, candidate)
+            byCanonicalUrl.getOrPut(candidate.canonicalUrl) { candidate }
+            byTitleHash.getOrPut(candidate.titleHash) { candidate }
         }
 
         // Earliest first, so the copy that should win is already in the pool by the time a
@@ -106,8 +106,8 @@ class Deduplicator constructor() {
             if (match == null) {
                 pool += candidate
                 inserted += candidate
-                byCanonicalUrl.putIfAbsent(candidate.canonicalUrl, candidate)
-                byTitleHash.putIfAbsent(candidate.titleHash, candidate)
+                byCanonicalUrl.getOrPut(candidate.canonicalUrl) { candidate }
+                byTitleHash.getOrPut(candidate.titleHash) { candidate }
                 continue
             }
 
