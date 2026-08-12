@@ -112,22 +112,27 @@ data class SourceFunnel(
 
 /** Renders the funnel as a fixed-width table for logcat and the debug screen. */
 fun List<SourceFunnel>.renderTable(): String {
-    val format = "%-13s %-7s %6s %6s %6s %6s %5s %5s %6s %6s %5s"
-    val header = format.format(
-        "source", "status", "parsed", "<30m", "<2h", "newest",
-        "brk", "top", "accept", "lost", "ins",
-    )
-    val rows = sortedBy { it.sourceId }.joinToString("\n") { f ->
-        format.format(
-            f.sourceId, f.status, f.parsed, f.fresh30m, f.fresh2h, "${f.newestAgeMinutes}m",
-            f.breakingPass, f.topicPass, f.accepted, f.dedupedAway, f.inserted,
-        ) + (f.error?.let { "  <- $it" } ?: "")
+    // KMP shell: String.format is JVM-only; padStart/padEnd do the fixed-width work.
+    fun c(v: Any?, w: Int, left: Boolean = false): String {
+        val s = v?.toString().orEmpty()
+        return if (left) s.padEnd(w) else s.padStart(w)
     }
-    val totals = format.format(
-        "TOTAL", "", sumOf { it.parsed }, sumOf { it.fresh30m }, sumOf { it.fresh2h }, "",
-        sumOf { it.breakingPass }, sumOf { it.topicPass }, sumOf { it.accepted },
-        sumOf { it.dedupedAway }, sumOf { it.inserted },
-    )
+    val header = listOf(
+        c("source", 13, true), c("status", 7, true), c("parsed", 6), c("<30m", 6), c("<2h", 6),
+        c("newest", 6), c("brk", 5), c("top", 5), c("accept", 6), c("lost", 6), c("ins", 5),
+    ).joinToString(" ")
+    val rows = sortedBy { it.sourceId }.joinToString("\n") { f ->
+        listOf(
+            c(f.sourceId, 13, true), c(f.status, 7, true), c(f.parsed, 6), c(f.fresh30m, 6),
+            c(f.fresh2h, 6), c("${f.newestAgeMinutes}m", 6), c(f.breakingPass, 5), c(f.topicPass, 5),
+            c(f.accepted, 6), c(f.dedupedAway, 6), c(f.inserted, 5),
+        ).joinToString(" ") + (f.error?.let { "  <- $it" } ?: "")
+    }
+    val totals = listOf(
+        c("TOTAL", 13, true), c("", 7, true), c(sumOf { it.parsed }, 6), c(sumOf { it.fresh30m }, 6),
+        c(sumOf { it.fresh2h }, 6), c("", 6), c(sumOf { it.breakingPass }, 5), c(sumOf { it.topicPass }, 5),
+        c(sumOf { it.accepted }, 6), c(sumOf { it.dedupedAway }, 6), c(sumOf { it.inserted }, 5),
+    ).joinToString(" ")
     val rule = "-".repeat(header.length)
     return "$header\n$rule\n$rows\n$rule\n$totals\n" +
         "  brk=passed breaking>=${'$'}MIN  top=passed topic  lost=story won by ANOTHER source  " +

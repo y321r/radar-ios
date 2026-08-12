@@ -114,7 +114,7 @@ class Deduplicator constructor() {
             // The identical article re-fetched from the same outlet in a later sync. Not a
             // second source — recording it would inflate the `+n مصادر` label every 15 minutes.
             if (match.sourceId == candidate.sourceId && match.canonicalUrl == candidate.canonicalUrl) {
-                alreadyStored.merge(candidate.sourceId, 1, Int::plus)
+                alreadyStored[candidate.sourceId] = (alreadyStored[candidate.sourceId] ?: 0) + 1
                 continue
             }
 

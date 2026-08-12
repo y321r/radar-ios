@@ -130,13 +130,13 @@ class NewsRepository constructor(
         val scored = fetch.articles.mapNotNull { raw ->
             val classification = classifier.classify(raw, now)
             if (classification.breakingScore >= FilterConfig.MIN_BREAKING_SCORE) {
-                breakingPass.merge(raw.sourceId, 1, Int::plus)
+                breakingPass[raw.sourceId] = (breakingPass[raw.sourceId] ?: 0) + 1
             }
             if (classification.topicScore >= FilterConfig.MIN_TOPIC_SCORE) {
-                topicPass.merge(raw.sourceId, 1, Int::plus)
+                topicPass[raw.sourceId] = (topicPass[raw.sourceId] ?: 0) + 1
             }
             if (classification.accepted) {
-                acceptedBySource.merge(raw.sourceId, 1, Int::plus)
+                acceptedBySource[raw.sourceId] = (acceptedBySource[raw.sourceId] ?: 0) + 1
                 ScoredArticle(raw, classification)
             } else {
                 null
