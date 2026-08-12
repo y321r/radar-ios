@@ -1,7 +1,7 @@
 package com.radar.news
 
 import androidx.compose.runtime.Composable
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.compose.runtime.remember
 import com.radar.news.ui.feed.FeedScreen
 import com.radar.news.ui.feed.FeedViewModel
 import com.radar.news.ui.theme.RadarTheme
@@ -10,8 +10,7 @@ import com.radar.news.ui.theme.RadarTheme
 @Composable
 fun App() {
     RadarTheme {
-        val container = IosContainer.instance
-        val viewModel: FeedViewModel = viewModel { FeedViewModel(container.repository) }
+        val viewModel = remember { FeedViewModel(IosContainer.instance.repository) }
         FeedScreen(viewModel = viewModel)
     }
 }

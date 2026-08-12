@@ -1,6 +1,7 @@
 package com.radar.news
 
 import com.radar.news.data.local.RadarDatabase
+import com.radar.news.data.local.createRadarDatabase
 import com.radar.news.data.remote.AtomAdapter
 import com.radar.news.data.remote.FeedFetcher
 import com.radar.news.data.remote.GoogleNewsAdapter
@@ -15,7 +16,7 @@ import io.ktor.client.HttpClient
 import io.ktor.client.engine.darwin.Darwin
 import io.ktor.client.plugins.HttpTimeout
 import kotlinx.coroutines.runBlocking
-import org.jetbrains.compose.resources.Res
+import com.radar.news.generated.resources.Res
 
 /**
  * iOS dependency container — the counterpart of the Android `AppContainer`. Assets ship in

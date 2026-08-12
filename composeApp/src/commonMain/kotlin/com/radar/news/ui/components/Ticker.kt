@@ -1,5 +1,7 @@
 package com.radar.news.ui.components
 
+import com.radar.news.util.currentTimeMillis
+
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.remember
@@ -19,10 +21,10 @@ import kotlinx.coroutines.delay
 @Composable
 fun rememberNowTicker(intervalMillis: Long = DEFAULT_TICK_MILLIS): State<Long> {
     val interval = remember(intervalMillis) { intervalMillis }
-    return produceState(initialValue = System.currentTimeMillis(), interval) {
+    return produceState(initialValue = currentTimeMillis(), interval) {
         while (true) {
             delay(interval)
-            value = System.currentTimeMillis()
+            value = currentTimeMillis()
         }
     }
 }

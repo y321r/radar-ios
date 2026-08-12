@@ -63,3 +63,6 @@ object Strings {
     const val contact_privacy_url = "https://y321r.github.io/radar-privacy/"
     const val contact_developer = "مطوّر التطبيق: Lyx Labs"
 }
+
+/** KMP replacement for `String.format` (JVM-only): fills the `%1$d` slot in the plural templates. */
+fun countFormat(template: String, n: Int): String = template.replace("%1\$d", n.toString())

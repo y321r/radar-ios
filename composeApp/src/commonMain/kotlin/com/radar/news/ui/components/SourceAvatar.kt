@@ -64,7 +64,12 @@ fun SourceAvatar(
 }
 
 private fun parseColor(hex: String): Color = runCatching {
-    Color(android.graphics.Color.parseColor(hex))
+    val h = hex.removePrefix("#")
+    when (h.length) {
+        6 -> Color(0xFF000000L or h.toLong(16))
+        8 -> Color(h.toLong(16))
+        else -> error("bad hex")
+    }
 }.getOrDefault(RadarColors.TextSecondary)
 
 private fun Color.luminance(): Float = (0.299f * red + 0.587f * green + 0.114f * blue)

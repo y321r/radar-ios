@@ -1,6 +1,7 @@
 package com.radar.news.ui.components
 
 import com.radar.news.ui.Strings
+import com.radar.news.ui.countFormat
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -29,7 +30,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
@@ -108,6 +108,6 @@ fun NewPostsPill(
 private fun newPostsLabel(count: Int): String = when {
     count == 1 -> Strings.new_posts_one
     count == 2 -> Strings.new_posts_two
-    count <= 10 -> Strings.new_posts_few.format(count)
-    else -> Strings.new_posts_many.format(count)
+    count <= 10 -> countFormat(Strings.new_posts_few, count)
+    else -> countFormat(Strings.new_posts_many, count)
 }
