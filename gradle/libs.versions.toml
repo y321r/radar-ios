@@ -32,8 +32,10 @@ kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serializa
 kotlinx-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "datetime" }
 okhttp = { module = "com.squareup.okhttp3:okhttp", version.ref = "okhttp" }
 ksoup = { module = "com.fleeksoft.ksoup:ksoup", version = "0.2.6" }
-coil = { module = "io.coil-kt.coil3:coil-compose", version = "3.5.0" }
-coil-network-ktor3 = { module = "io.coil-kt.coil3:coil-network-ktor3", version = "3.5.0" }
+# coil pinned to 3.4.0: 3.5.0's iOS klibs are built with Kotlin 2.4.0 (ABI 2.4.0), which the
+# 2.3.21 compiler cannot consume ("Please upgrade your Kotlin compiler version").
+coil = { module = "io.coil-kt.coil3:coil-compose", version = "3.4.0" }
+coil-network-ktor3 = { module = "io.coil-kt.coil3:coil-network-ktor3", version = "3.4.0" }
 ktor-client-core = { module = "io.ktor:ktor-client-core", version.ref = "ktor" }
 ktor-client-okhttp = { module = "io.ktor:ktor-client-okhttp", version.ref = "ktor" }
 ktor-client-darwin = { module = "io.ktor:ktor-client-darwin", version.ref = "ktor" }
